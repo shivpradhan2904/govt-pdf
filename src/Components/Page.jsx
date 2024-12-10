@@ -1,30 +1,141 @@
-import React,{useRef} from "react";
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
+import React, { useState } from "react";
+import jsPDF from "jspdf";
 import img from "../image/Odisha-govt.webp";
 import qr from "../image/qr.png";
 
-function Page({img,qr}) {
-  const printRef = useRef();
+function Page() {
+  const [inputs, setInputs] = useState({
+    pass: "",
+    no: "",
+    book: "",
+    date: "",
+    time: "",
+    mining: "",
+    auction: "",
+    purchaser: "",
+    destination: "",
+    route: "",
+    minor: "",
+    permit: "",
+    date2: "",
+    length: "",
+    breadth: "",
+    height: "",
+    meter: "",
+    cum: "",
+    ton: "",
+    tare: "",
+    mineral: "",
 
-  const handlePrint = () => {
-    const input = printRef.current;
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
 
-    html2canvas(input, { scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 10;
+  const generatePDF = () => {
+    const doc = new jsPDF();
 
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-      pdf.save('form.pdf');
+    doc.setFontSize(10);
+    doc.text("Government of Odisha", 105, 10, null, null, "center");
+    doc.text("Department of Steel & Mines", 105, 15, null, null, "center");
+    doc.text("Form-Y", 105, 20, null, null, "center");
+    doc.text("[See rule 58(1)]", 105, 25, null, null, "center");
+
+    doc.setFontSize(8);
+    doc.text(`Pass: ${inputs.pass}`, 10, 40);
+    doc.text(`No: ${inputs.no}`, 50, 40);
+    doc.text(`Book No: ${inputs.book}`, 10, 50);
+    doc.text(`Date: ${inputs.date}`, 10, 60);
+    doc.text(`Time: ${inputs.time}`, 50, 60);
+
+    doc.setFontSize(12);
+    doc.text("TRANSIT PASS", 105, 70, null, null, "center");
+    doc.setFontSize(10);
+    doc.text("FOR MINOR MINERALS", 105, 75, null, null, "center");
+    doc.setFontSize(10);
+    doc.text("3. Circle Mining Office :", 10, 80);
+    doc.text(inputs.mining, 40, 80);
+
+    doc.text("4. Name of the Quarry/Lease/Source of Auction :", 10, 90);
+    doc.text(inputs.auction, 40, 90);
+
+    doc.text(
+      "5. Name of the Licensee/Lessee/Permit Holder/Auction Holder/Auction Purchaser :",
+      10,
+      100
+    );
+    doc.text(inputs.purchaser, 40, 100);
+
+    doc.text("6. Destination :", 10, 110);
+    doc.text(inputs.destination, 40, 110);
+
+    doc.text("Route :", 60, 110);
+    doc.text(inputs.route, 80, 110);
+
+    doc.setFontSize(10);
+
+    doc.text("7. Minor Mineral :", 10, 120);
+    doc.text(inputs.minor, 40, 120);
+
+    doc.text("8. Permit No. :", 10, 130);
+    doc.text(inputs.permit, 40, 130);
+    doc.text("Date :", 70, 130);
+    doc.text(inputs.date2, 90, 130); 
+
+    doc.text("9. Quantity Permitted (Cum/Tonnes) :", 10, 140);
+    doc.text("", 70, 140); 
+
+    const tableHeaderY = 150; 
+    const colWidth = 30; 
+    doc.text("Length", 10, tableHeaderY);
+    doc.text("Breadth", colWidth + 10, tableHeaderY);
+    doc.text("Height", 2 * colWidth + 10, tableHeaderY);
+    doc.text("Actions", 3 * colWidth + 10, tableHeaderY);
+
+    const tableDataY = tableHeaderY + 5; 
+    tableData.forEach((row, index) => {
+      const rowY = tableDataY + index * 10; 
+      doc.text(row.length, 10, rowY);
+      doc.text(row.breadth, colWidth + 10, rowY);
+      doc.text(row.height, 2 * colWidth + 10, rowY);
     });
-  }
+    doc.text("10. Measurement of Mineral in Carrier (in meter) :", 10, 150);
+    doc.text(inputs.meter, 40, 150);
+
+    doc.text("11. Cubic Content (Cum) :", 10, 160);
+    doc.text(inputs.cum, 40, 160);
+
+    doc.text("12. Weight of the Vehicle (Tonnes) :", 10, 170);
+    doc.text(inputs.ton, 40, 170);
+    doc.text("Tare :", 70, 170);
+    doc.text(inputs.tare, 90, 170);
+
+    doc.text("13. Weight of the Mineral :", 10, 180);
+    doc.text(inputs.mineral, 40, 180);
+
+    const fileName = inputs.book ? `${inputs.book}.pdf` : "bookno.pdf";
+    doc.save(fileName);
+  };
+  const [tableData, setTableData] = useState([
+    { length: "NA", breadth: "NA", height: "NA" },
+  ]);
+
+  const handleInputChange = (e, index, field) => {
+    const newTableData = [...tableData];
+    newTableData[index][field] = e.target.value;
+    setTableData(newTableData);
+  };
+
+  const handleAddRow = () => {
+    setTableData([...tableData, { length: "", breadth: "", height: "" }]);
+  };
+
+  const handleDeleteRow = (index) => {
+    const newTableData = [...tableData];
+    newTableData.splice(index, 1);
+    setTableData(newTableData);
+  };
 
   return (
     <div className="flex justify-center bg-gray-100">
@@ -65,6 +176,9 @@ function Page({img,qr}) {
                     <span className="text-[8px]">Pass</span>
                     <input
                       type="text"
+                      name="pass"
+                      value={inputs.pass}
+                      onChange={handleChange}
                       className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[5px] sm:text-[10px] font-bold w-[40px] sm:w-[100px]"
                       placeholder=" "
                     />
@@ -73,6 +187,9 @@ function Page({img,qr}) {
                     <span className="text-[8px]">No.</span>
                     <input
                       type="text"
+                      name="no"
+                      value={inputs.no}
+                      onChange={handleChange}
                       className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[5px] sm:text-[10px] font-bold w-[40px] sm:w-[100px]"
                       placeholder=" "
                     />
@@ -96,6 +213,9 @@ function Page({img,qr}) {
               </span>
               <input
                 type="text"
+                name="book"
+                value={inputs.book}
+                onChange={handleChange}
                 className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[8px] font-bold w-[100px]"
                 placeholder=""
               />
@@ -106,10 +226,16 @@ function Page({img,qr}) {
                 </span>
                 <input
                   type="date"
+                  name="date"
+                  value={inputs.date}
+                  onChange={handleChange}
                   className="border border-gray-300 p-1 rounded text-[8px] w-[50px] sm:w-[100px] focus:outline-none"
                 />
                 <input
                   type="time"
+                  name="time"
+                  value={inputs.time}
+                  onChange={handleChange}
                   className="border border-gray-300 p-1 rounded text-[8px] w-[50px] sm:w-[100px] focus:outline-none ml-2"
                 />
               </div>
@@ -122,6 +248,9 @@ function Page({img,qr}) {
                 </span>
                 <input
                   type="text"
+                  name="mining"
+                  value={inputs.mining}
+                  onChange={handleChange}
                   className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[8px] sm:text-[10px] font-bold w-[100px] sm:w-[200px]"
                   placeholder="     "
                 />
@@ -134,6 +263,9 @@ function Page({img,qr}) {
                 </span>
                 <input
                   type="text"
+                  name="auction"
+                  value={inputs.auction}
+                  onChange={handleChange}
                   className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[70px] sm:w-[100px]"
                   placeholder="  "
                 />
@@ -146,6 +278,9 @@ function Page({img,qr}) {
                 </span>
                 <input
                   type="text"
+                  name="purchaser"
+                  value={inputs.purchaser}
+                  onChange={handleChange}
                   className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[100px]"
                   placeholder="  "
                 />
@@ -158,6 +293,9 @@ function Page({img,qr}) {
                   </span>
                   <input
                     type="text"
+                    name="destination"
+                    value={inputs.destination}
+                    onChange={handleChange}
                     className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[80px] sm:w-[100px]"
                     placeholder="  "
                   />
@@ -167,8 +305,11 @@ function Page({img,qr}) {
                   <span className="text-[10px]">Route :</span>
                   <input
                     type="text"
+                    name="route"
+                    value={inputs.route}
+                    onChange={handleChange}
                     className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[80px] sm:w-[80px]"
-                    placeholder="BHUBANESWER"
+                    placeholder=" "
                   />
                 </div>
               </div>
@@ -179,6 +320,9 @@ function Page({img,qr}) {
                 </span>
                 <input
                   type="text"
+                  name="minor"
+                  value={inputs.minor}
+                  onChange={handleChange}
                   className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[130px] sm:w-[200px]"
                   placeholder=""
                 />
@@ -190,12 +334,18 @@ function Page({img,qr}) {
                 </span>
                 <input
                   type="text"
+                  name="permit"
+                  value={inputs.permit}
+                  onChange={handleChange}
                   className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[70px] sm:w-[100px]"
                   placeholder="NA"
                 />
                 <span className="ml-3 text-[10px] font-bold">Date : </span>
                 <input
                   type="date"
+                  name="date2"
+                  value={inputs.date2}
+                  onChange={handleChange}
                   className="border border-gray-300 p-1 rounded text-[8px] w-[100px] focus:outline-none"
                 />
               </div>
@@ -207,14 +357,14 @@ function Page({img,qr}) {
                 </span>
                 <input
                   type="text"
-                  className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[50px] sm:w-[100px]"
+                  className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[50px] sm:w-[100px] sm:ml-7"
                   placeholder=" "
                 />
               </div>
               <div className="overflow-x-auto">
                 <table className="table-auto border border-gray-400 w-full text-center">
                   <thead>
-                    <tr className="bg-gray-100">
+                    <tr>
                       <th className="border border-gray-400 px-2 py-1 text-[10px] font-bold">
                         Length
                       </th>
@@ -224,22 +374,51 @@ function Page({img,qr}) {
                       <th className="border border-gray-400 px-2 py-1 text-[10px] font-bold">
                         Height
                       </th>
+                      <th className="border border-gray-400 px-2 py-1 text-[10px] font-bold">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td className="border border-gray-400 px-2 py-1 text-[#081c5f] text-[10px] font-bold">
-                        NA
-                      </td>
-                      <td className="border border-gray-400 px-2 py-1 text-[#081c5f] text-[10px] font-bold">
-                        NA
-                      </td>
-                      <td className="border border-gray-400 px-2 py-1 text-[#081c5f] text-[10px] font-bold">
-                        NA
-                      </td>
-                    </tr>
+                    {tableData.map((row, index) => (
+                      <tr key={index}>
+                        <td className="border border-gray-400 px-2 py-1 text-[#081c5f] text-[10px] font-bold">
+                          <input
+                            type="text"
+                            value={row.length}
+                            onChange={(e) =>
+                              handleInputChange(e, index, "length")
+                            }
+                          />
+                        </td>
+                        <td className="border border-gray-400 px-2 py-1 text-[#081c5f] text-[10px] font-bold">
+                          <input
+                            type="text"
+                            value={row.breadth}
+                            onChange={(e) =>
+                              handleInputChange(e, index, "breadth")
+                            }
+                          />
+                        </td>
+                        <td className="border border-gray-400 px-2 py-1 text-[#081c5f] text-[10px] font-bold">
+                          <input
+                            type="text"
+                            value={row.height}
+                            onChange={(e) =>
+                              handleInputChange(e, index, "height")
+                            }
+                          />
+                        </td>
+                        <td className="border border-gray-400 px-2 py-1 text-[10px] font-bold">
+                          <button onClick={() => handleDeleteRow(index)}>
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
+                <button onClick={handleAddRow}>Add Row</button>
               </div>
 
               <div className="">
@@ -249,7 +428,10 @@ function Page({img,qr}) {
                 </span>
                 <input
                   type="text"
-                  className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[100px]"
+                  name="meter"
+                  value={inputs.meter}
+                  onChange={handleChange}
+                  className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[80px]"
                   placeholder="  "
                 />
               </div>
@@ -260,6 +442,9 @@ function Page({img,qr}) {
                 </span>
                 <input
                   type="text"
+                  name="cum"
+                  value={inputs.cum}
+                  onChange={handleChange}
                   className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[100px]"
                   placeholder="0.00"
                 />
@@ -272,12 +457,18 @@ function Page({img,qr}) {
                 </span>
                 <input
                   type="text"
+                  name="ton"
+                  value={inputs.ton}
+                  onChange={handleChange}
                   className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[50px] sm:w-[50px]"
                   placeholder="NA"
                 />
                 <span className="ml-3 text-[10px] ">Tare :</span>
                 <input
                   type="text"
+                  name="tare"
+                  value={inputs.tare}
+                  onChange={handleChange}
                   className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[50px] sm:w-[50px]"
                   placeholder="NA"
                 />
@@ -289,6 +480,9 @@ function Page({img,qr}) {
                 </span>
                 <input
                   type="text"
+                  name="mineral"
+                  value={inputs.mineral}
+                  onChange={handleChange}
                   className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[100px]"
                   placeholder="NA"
                 />
@@ -630,8 +824,13 @@ function Page({img,qr}) {
             </div>
           </div>
         </div>
-        <div>
-          <button onClick={handlePrint} className="flex justify-center">Print</button>
+        <div className=" flex justify-center">
+          <button
+            onClick={generatePDF}
+            className="bg-[#b52121] rounded-md px-6"
+          >
+            Print
+          </button>
         </div>
       </div>
     </div>
