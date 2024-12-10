@@ -1,8 +1,31 @@
-import React from "react";
+import React,{useRef} from "react";
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import img from "../image/Odisha-govt.webp";
 import qr from "../image/qr.png";
 
-function Page() {
+function Page({img,qr}) {
+  const printRef = useRef();
+
+  const handlePrint = () => {
+    const input = printRef.current;
+
+    html2canvas(input, { scale: 2 }).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 10;
+
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      pdf.save('form.pdf');
+    });
+  }
+
   return (
     <div className="flex justify-center bg-gray-100">
       <div className=" w-[700px] h-[700px] sm:w-[700px] sm:h-[800px] md:w-[700px] md:h-[800px] lg:w-[800px] lg:h-[900px] mx-auto ">
@@ -445,7 +468,7 @@ function Page() {
                   <input
                     type="text"
                     className="border-b border-dotted border-black focus:outline-none text-center uppercase text-[#081c5f] text-[10px] font-bold w-[80px] sm:w-[80px]"
-                    placeholder="BHUBANESWER"
+                    placeholder=""
                   />
                 </div>
               </div>
@@ -606,6 +629,9 @@ function Page() {
               </div>
             </div>
           </div>
+        </div>
+        <div>
+          <button onClick={handlePrint} className="flex justify-center">Print</button>
         </div>
       </div>
     </div>
