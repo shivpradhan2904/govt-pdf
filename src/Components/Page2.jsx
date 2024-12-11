@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import jsPDF from "jspdf";
 import img from "../image/Odisha-govt.webp";
 import qr from "../image/qr.png";
-import Page2 from "./Page2";
 
-function Page() {
+function Page2() {
   const [inputs, setInputs] = useState({
     pass: "",
     no: "",
@@ -136,13 +135,10 @@ function Page() {
     newTableData.splice(index, 1);
     setTableData(newTableData);
   };
-
   return (
-    <div className="flex justify-center bg-gray-100">
-      <div className=" w-[700px] h-[700px] sm:w-[700px] sm:h-[800px] md:w-[700px] md:h-[800px] lg:w-[800px] lg:h-[900px] mx-auto ">
-        <div className="grid grid-cols-2 gap-4 p-4 bg-white ">
-          {/* Original Copy */}
-          <div className=" border-black border-[3px] p-2">
+    <div>
+      {/* Duplicate Copy */}
+      <div className=" border-black border-[3px] p-2">
             <header className="flex justify-between items-center">
               <div className="flex-1 text-center"></div>
               <div className="flex-1 flex justify-center">
@@ -535,20 +531,8 @@ function Page() {
               </div>
             </div>
           </div>
-          {/* Duplicate copy */}
-          <Page2 />
-        </div>
-        <div className=" flex justify-center">
-          <button
-            onClick={generatePDF}
-            className="bg-[#b52121] rounded-md px-6"
-          >
-            Print{" "}
-          </button>
-        </div>
-      </div>
     </div>
-  );
+  )
 }
 
-export default Page;
+export default Page2
